@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>연립정부 시뮬레이터</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.32.1/build/stlite.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@stlite/mountable@0.32.1/build/stlite.js"></script>
+    <script>
+      stlite.mount(
+        {
+          // requirements.txt 대신 이곳에 필요한 파이썬 패키지를 명시합니다.
+          requirements: ["pandas", "plotly"],
+          entrypoint: "app.py",
+          files: {
+            "app.py": {
+              url: "./app.py"
+            }
+          }
+        },
+        document.getElementById("root")
+      );
+    </script>
+  </body>
+</html>
