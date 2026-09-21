@@ -3,12 +3,54 @@
   <head>
     <meta charset="UTF-8" />
     <title>연립정부 시뮬레이터</title>
-    <!-- 엔진 최신 버전 및 폰트 깨짐 방지 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/mountable@latest/build/stlite.css" />
+    <style>
+      /* 전체 화면을 채우는 로딩 배경 */
+      .loader-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f2f6; /* Streamlit 기본 배경색 */
+        font-family: sans-serif;
+      }
+      /* 회전하는 애니메이션 원(Spinner) */
+      .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border-left-color: #ff4b4b; /* Streamlit 상징색(빨강) */
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      /* 로딩 안내 문구 */
+      .loading-text {
+        margin-top: 20px;
+        color: #31333F;
+        font-size: 16px;
+        font-weight: 500;
+      }
+      .loading-subtext {
+        margin-top: 8px;
+        color: #7d828a;
+        font-size: 14px;
+      }
+    </style>
   </head>
   <body>
-    <!-- 높이를 100vh로 강제하여 흰 화면 버그 방지 -->
-    <div id="root" style="height: 100vh;"></div>
+    <!-- 엔진이 덮어쓸 root 영역 내부에 임시 로딩 화면 배치 -->
+    <div id="root" style="height: 100vh;">
+      <div class="loader-container">
+        <div class="spinner"></div>
+        <div class="loading-text">시뮬레이터 파이썬 환경을 불러오는 중입니다...</div>
+        <div class="loading-subtext">(최초 접속 시 1~2분 정도 소요될 수 있습니다)</div>
+      </div>
+    </div>
     
     <script src="https://cdn.jsdelivr.net/npm/@stlite/mountable@latest/build/stlite.js"></script>
     <script>
@@ -18,7 +60,6 @@
           entrypoint: "app.py",
           files: {
             "app.py": {
-              // 상대 경로 대신 깃허브 원본 파일 주소 강제 매핑
               url: "https://raw.githubusercontent.com/dgtaehyeon/Coalition-Government-Formation-Simulator/main/app.py"
             }
           }
