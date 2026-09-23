@@ -340,22 +340,24 @@ def draw_parliament_chart(df):
         showlegend=False, margin=dict(t=30, b=0, l=0, r=0),
         height=400, title_text=f"최종 의회 구성 (총 {total_seats}석)", title_x=0.5
     )
-    fig.update_traces(texttemplate="%{label}%{value}석", selector=dict(type='pie'))
-try: fig.data[0].textfont.color = ['white'] * len(df_sorted) + ['rgba(0,0,0,0)']
-except: pass
-return fig
+    fig.update_traces(texttemplate="%{label}<br>%{value}석", selector=dict(type='pie'))
+    try: fig.data[0].textfont.color = ['white'] * len(df_sorted) + ['rgba(0,0,0,0)']
+    except: pass
+    return fig
 
-# --- 7. Streamlit UI 렌더링 ---
+# ==========================================
+# --- 7. Streamlit UI 렌더링 (화면 구성부) ---
+# ==========================================
 st.set_page_config(page_title="고급 선거 및 연정 시뮬레이터", layout="wide")
 st.title("🏛️ 정치학 선거제도 및 연립정부 시뮬레이터 V2.1.0")
 
 if 'party_data' not in st.session_state:
     st.session_state.party_data = pd.DataFrame([
-       {'정당명': '노동당', '정당 상태': '기성', '이전 득표율(%)': 30.0, '득표율(%)': 35.0, '지역구의석': 90, '이념위치(1-10)': 3.0},
-       {'정당명': '녹색당', '정당 상태': '기성', '이전 득표율(%)': 6.0, '득표율(%)': 8.0, '지역구의석': 2, '이념위치(1-10)': 2.0},
-       {'정당명': '자유당', '정당 상태': '기성', '이전 득표율(%)': 20.0, '득표율(%)': 15.0, '지역구의석': 15, '이념위치(1-10)': 5.0},
-       {'정당명': '보수당', '정당 상태': '기성', '이전 득표율(%)': 35.0, '득표율(%)': 28.0, '지역구의석': 85, '이념위치(1-10)': 7.0},
-       {'정당명': '대안우파당', '정당 상태': '신설/분열', '이전 득표율(%)': 0.0, '득표율(%)': 4.5, '지역구의석': 0, '이념위치(1-10)': 9.0}
+        {'정당명': '노동당', '정당 상태': '기성', '이전 득표율(%)': 30.0, '득표율(%)': 35.0, '지역구의석': 90, '이념위치(1-10)': 3.0},
+        {'정당명': '녹색당', '정당 상태': '기성', '이전 득표율(%)': 6.0, '득표율(%)': 8.0, '지역구의석': 2, '이념위치(1-10)': 2.0},
+        {'정당명': '자유당', '정당 상태': '기성', '이전 득표율(%)': 20.0, '득표율(%)': 15.0, '지역구의석': 15, '이념위치(1-10)': 5.0},
+        {'정당명': '보수당', '정당 상태': '기성', '이전 득표율(%)': 35.0, '득표율(%)': 28.0, '지역구의석': 85, '이념위치(1-10)': 7.0},
+        {'정당명': '대안우파당', '정당 상태': '신설/분열', '이전 득표율(%)': 0.0, '득표율(%)': 4.5, '지역구의석': 0, '이념위치(1-10)': 9.0}
     ])
 
 with st.sidebar:
@@ -364,181 +366,187 @@ with st.sidebar:
         "적용할 선거제도",
         ["단순 비례대표제", "병립형 비례대표제 (혼합형)", "연동형 비례대표제 (MMP)", "단기이양식 선호투표제 (STV 간이모델)", "결선투표제 (간이모델)", "단순다수제 (소선거구제 - 큐브의 법칙 적용)", "제도 비교 모드 (PR vs 단순다수제)"]
     )
-
-pr_method = st.selectbox(
-    "비례대표 의석 배분 공식",
-    ["최고평균법 (동트)", "최고평균법 (생-라귀)", "최대잔여법 (헤어 쿼터)"]
-)
-
-st.divider()
-
-apply_premium = st.checkbox("다수당 프리미엄 적용 (1위 당에 의석 선지급)")
-premium_percent = 0
-if apply_premium:
-    premium_percent = st.slider("프리미엄 의석 비율 (%)", 10, 50, 50, 5)
-    st.caption(f"1위 정당에게 총 의석의 {premium_percent}%를 먼저 지급합니다.")
     
-st.divider()
-
-allow_overhang = True
-if election_system in ["단순 비례대표제", "단기이양식 선호투표제 (STV 간이모델)", "결선투표제 (간이모델)", "단순다수제 (소선거구제 - 큐브의 법칙 적용)", "제도 비교 모드 (PR vs 단순다수제)"]:
-    total_seats = st.number_input("의회 총 의석수", 50, 1000, 300)
-    electoral_threshold = st.slider("봉쇄조항 (%)", 0.0, 10.0, 5.0, 0.5) if ("단순 비례" in election_system or "비교 모드" in election_system) else 0.0
-else:
-    district_seats = st.number_input("총 지역구 의석수", 0, 1000, 299)
-    pr_seats = st.number_input("총 비례대표 의석수", 0, 1000, 299)
-    total_seats = district_seats + pr_seats
-    electoral_threshold = st.slider("봉쇄조항 (%)", 0.0, 10.0, 5.0, 0.5)
+    pr_method = st.selectbox(
+        "비례대표 의석 배분 공식",
+        ["최고평균법 (동트)", "최고평균법 (생-라귀)", "최대잔여법 (헤어 쿼터)"]
+    )
     
-    if election_system == "연동형 비례대표제 (MMP)":
-        allow_overhang = st.checkbox("초과의석 허용", value=True)
-        st.caption("체크 해제 시 총 의석수에 맞춰 비례의석을 축소 조정합니다.")
+    st.divider()
+    
+    apply_premium = st.checkbox("다수당 프리미엄 적용 (1위 당에 의석 선지급)")
+    premium_percent = 0
+    if apply_premium:
+        premium_percent = st.slider("프리미엄 의석 비율 (%)", 10, 50, 50, 5)
+        st.caption(f"1위 정당에게 총 의석의 {premium_percent}%를 먼저 지급합니다.")
+        
+    st.divider()
+    
+    allow_overhang = True
+    if election_system in ["단순 비례대표제", "단기이양식 선호투표제 (STV 간이모델)", "결선투표제 (간이모델)", "단순다수제 (소선거구제 - 큐브의 법칙 적용)", "제도 비교 모드 (PR vs 단순다수제)"]:
+        total_seats = st.number_input("의회 총 의석수", 50, 1000, 300)
+        electoral_threshold = st.slider("봉쇄조항 (%)", 0.0, 10.0, 5.0, 0.5) if ("단순 비례" in election_system or "비교 모드" in election_system) else 0.0
+    else:
+        district_seats = st.number_input("총 지역구 의석수", 0, 1000, 299)
+        pr_seats = st.number_input("총 비례대표 의석수", 0, 1000, 299)
+        total_seats = district_seats + pr_seats
+        electoral_threshold = st.slider("봉쇄조항 (%)", 0.0, 10.0, 5.0, 0.5)
+        
+        if election_system == "연동형 비례대표제 (MMP)":
+            allow_overhang = st.checkbox("초과의석 허용", value=True)
+            st.caption("체크 해제 시 총 의석수에 맞춰 비례의석을 축소 조정합니다.")
+
 st.subheader("📊 정당 데이터 입력 (파웰-터커 변동성 분석 포함)")
 st.caption("‘이전 득표율’과 ‘정당 상태’를 입력하면 파웰-터커(Powell-Tucker) 변동성 지수가 자동 산출됩니다.")
 
 df_to_edit = clean_input_df(st.session_state.party_data)
 edited_df = st.data_editor(
-df_to_edit,
-column_config={
-"정당 상태": st.column_config.SelectboxColumn("정당 상태", options=["기성", "신설/분열", "소멸"], required=True)
-},
-num_rows="dynamic", use_container_width=True
+    df_to_edit, 
+    column_config={
+        "정당 상태": st.column_config.SelectboxColumn("정당 상태", options=["기성", "신설/분열", "소멸"], required=True)
+    },
+    num_rows="dynamic", use_container_width=True
 )
 cleaned_edit = clean_input_df(edited_df)
 
 st.divider()
 result_df = pd.DataFrame()
 
-# --- 비교 모드 분기 ---
+# ==========================================
+# --- 8. 분기 1: 제도 비교 모드 ---
+# ==========================================
 if election_system == "제도 비교 모드 (PR vs 단순다수제)":
     st.subheader("⚖️ 선거제도별 의석 확보 비교")
-
-df_pr = calc_pure_pr(cleaned_edit, total_seats, electoral_threshold, pr_method, premium_percent)
-df_cube = calc_fptp_cube_rule(cleaned_edit, total_seats)
-
-actual_seats_pr = int(df_pr['최종의석'].sum())
-actual_seats_cube = int(df_cube['최종의석'].sum())
-
-pr_gal = calculate_gallagher_index(df_pr, actual_seats_pr)
-pr_enp = calculate_enp(df_pr, actual_seats_pr)
-cube_gal = calculate_gallagher_index(df_cube, actual_seats_cube)
-cube_enp = calculate_enp(df_cube, actual_seats_cube)
-total_vol, vol_a, vol_b = calculate_powell_tucker_volatility(cleaned_edit)
-
-compare_df = pd.DataFrame({
-    '정당명': cleaned_edit['정당명'],
-    '득표율(%)': cleaned_edit['득표율(%)'].round(2).astype(str) + '%',
-    '이념위치(1-10)': cleaned_edit['이념위치(1-10)'].round(1).astype(str),
-    '비례대표제 확보의석': df_pr['최종의석'].astype(int).astype(str),
-    '단순다수제(큐브) 확보의석': df_cube['최종의석'].astype(int).astype(str)
-})
-
-metrics_rows = pd.DataFrame([
-    {'정당명': '📊 갤러거 인덱스 (불비례성)', '득표율(%)': '-', '이념위치(1-10)': '-', '비례대표제 확보의석': str(pr_gal), '단순다수제(큐브) 확보의석': str(cube_gal)},
-    {'정당명': '🧩 유효 정당 수 (ENP)', '득표율(%)': '-', '이념위치(1-10)': '-', '비례대표제 확보의석': str(pr_enp), '단순다수제(큐브) 확보의석': str(cube_enp)},
-    {'정당명': f'📈 총 투표 변동성 (A: {vol_a} / B: {vol_b})', '득표율(%)': '-', '이념위치(1-10)': '-', '비례대표제 확보의석': str(total_vol), '단순다수제(큐브) 확보의석': str(total_vol)}
-])
-compare_df = pd.concat([compare_df, metrics_rows], ignore_index=True)
-
-st.markdown("##### 🏛️ 거시 지표 및 정당별 의석 비교표")
-st.dataframe(compare_df, hide_index=True, use_container_width=True)
-
-chart_df = compare_df.iloc[:-3]
-fig_compare = go.Figure()
-fig_compare.add_trace(go.Bar(
-    x=chart_df['정당명'], y=chart_df['비례대표제 확보의석'].astype(int), 
-    name=f'단순 비례대표제 ({pr_method})', marker_color='rgb(55, 83, 109)'
-))
-fig_compare.add_trace(go.Bar(
-    x=chart_df['정당명'], y=chart_df['단순다수제(큐브) 확보의석'].astype(int), 
-    name='단순다수제 (큐브의 법칙)', marker_color='rgb(26, 118, 255)'
-))
-fig_compare.update_layout(
-    barmode='group', title='동일 득표율 하의 선거제도별 의석 배분 격차',
-    xaxis_title='정당명', yaxis_title='확보 의석수',
-    legend_title='선거제도', margin=dict(t=50, b=0, l=0, r=0)
-)
-st.plotly_chart(fig_compare, use_container_width=True)
-
-csv_data = compare_df.to_csv(index=False).encode('utf-8-sig')
-st.download_button(
-    label="📥 통합 비교 데이터 CSV 다운로드", data=csv_data,
-    file_name="선거제도_종합_비교결과.csv", mime="text/csv"
-)
-# --- 단일 선거제도 분기 ---
-else:
-if election_system == "단순 비례대표제":
-result_df = calc_pure_pr(cleaned_edit, total_seats, electoral_threshold, pr_method, premium_percent)
-elif election_system == "병립형 비례대표제 (혼합형)":
-result_df = calc_parallel(cleaned_edit, pr_seats, electoral_threshold, pr_method)
-elif election_system == "연동형 비례대표제 (MMP)":
-result_df = calc_mmp(cleaned_edit, total_seats, electoral_threshold, pr_method, allow_overhang)
-elif election_system == "단기이양식 선호투표제 (STV 간이모델)":
-result_df = calc_stv_proxy(cleaned_edit, total_seats)
-elif election_system == "결선투표제 (간이모델)":
-result_df = calc_two_round_proxy(cleaned_edit, total_seats, pr_method, premium_percent)
-elif election_system == "단순다수제 (소선거구제 - 큐브의 법칙 적용)":
-result_df = calc_fptp_cube_rule(cleaned_edit, total_seats)
-
-if not result_df.empty and '최종의석' in result_df.columns:
-    actual_total_seats = int(result_df['최종의석'].sum())
-    majority_req = (actual_total_seats // 2) + 1
     
-    gallagher_val = calculate_gallagher_index(result_df, actual_total_seats)
-    enp_val = calculate_enp(result_df, actual_total_seats)
+    df_pr = calc_pure_pr(cleaned_edit, total_seats, electoral_threshold, pr_method, premium_percent)
+    df_cube = calc_fptp_cube_rule(cleaned_edit, total_seats)
+    
+    actual_seats_pr = int(df_pr['최종의석'].sum())
+    actual_seats_cube = int(df_cube['최종의석'].sum())
+    
+    pr_gal = calculate_gallagher_index(df_pr, actual_seats_pr)
+    pr_enp = calculate_enp(df_pr, actual_seats_pr)
+    cube_gal = calculate_gallagher_index(df_cube, actual_seats_cube)
+    cube_enp = calculate_enp(df_cube, actual_seats_cube)
     total_vol, vol_a, vol_b = calculate_powell_tucker_volatility(cleaned_edit)
     
-    banzhaf_dict = calculate_banzhaf_index(result_df, actual_total_seats)
-    shapley_dict = calculate_shapley_shubik_index(result_df, actual_total_seats)
+    compare_df = pd.DataFrame({
+        '정당명': cleaned_edit['정당명'],
+        '득표율(%)': cleaned_edit['득표율(%)'].round(2).astype(str) + '%',
+        '이념위치(1-10)': cleaned_edit['이념위치(1-10)'].round(1).astype(str),
+        '비례대표제 확보의석': df_pr['최종의석'].astype(int).astype(str),
+        '단순다수제(큐브) 확보의석': df_cube['최종의석'].astype(int).astype(str)
+    })
     
-    col1, col2 = st.columns([1.2, 1])
-    with col1:
-        metric_col1, metric_col2, metric_col3 = st.columns(3)
-        with metric_col1:
-            st.metric(label="⚖️ 갤러거 인덱스", value=f"{gallagher_val}")
-        with metric_col2:
-            st.metric(label="🧩 유효 정당 수 (ENP)", value=f"{enp_val}")
-        with metric_col3:
-            st.metric(label="📈 총 투표 변동성", value=f"{total_vol}", help=f"파웰-터커 지수 (Type A: {vol_a} / Type B: {vol_b})")
-            
-        st.divider()
-        st.subheader("🏛️ 의회 다이어그램")
-        if actual_total_seats > total_seats:
-            st.warning(f"초과의석 발생! 원래 정원({total_seats}석)에서 {actual_total_seats - total_seats}석 증가.")
-        elif actual_total_seats < total_seats and election_system == "연동형 비례대표제 (MMP)" and not allow_overhang:
-            st.info(f"초과의석 방지 작동: 목표 총 의석({total_seats}석)에 맞추어 비례의석이 축소 배분되었습니다.")
-            
-        fig_parliament = draw_parliament_chart(result_df)
-        st.plotly_chart(fig_parliament, use_container_width=True)
+    metrics_rows = pd.DataFrame([
+        {'정당명': '📊 갤러거 인덱스 (불비례성)', '득표율(%)': '-', '이념위치(1-10)': '-', '비례대표제 확보의석': str(pr_gal), '단순다수제(큐브) 확보의석': str(cube_gal)},
+        {'정당명': '🧩 유효 정당 수 (ENP)', '득표율(%)': '-', '이념위치(1-10)': '-', '비례대표제 확보의석': str(pr_enp), '단순다수제(큐브) 확보의석': str(cube_enp)},
+        {'정당명': f'📈 총 투표 변동성 (A: {vol_a} / B: {vol_b})', '득표율(%)': '-', '이념위치(1-10)': '-', '비례대표제 확보의석': str(total_vol), '단순다수제(큐브) 확보의석': str(total_vol)}
+    ])
+    compare_df = pd.concat([compare_df, metrics_rows], ignore_index=True)
+    
+    st.markdown("##### 🏛️ 거시 지표 및 정당별 의석 비교표")
+    st.dataframe(compare_df, hide_index=True, use_container_width=True)
+    
+    chart_df = compare_df.iloc[:-3]
+    fig_compare = go.Figure()
+    fig_compare.add_trace(go.Bar(
+        x=chart_df['정당명'], y=chart_df['비례대표제 확보의석'].astype(int), 
+        name=f'단순 비례대표제 ({pr_method})', marker_color='rgb(55, 83, 109)'
+    ))
+    fig_compare.add_trace(go.Bar(
+        x=chart_df['정당명'], y=chart_df['단순다수제(큐브) 확보의석'].astype(int), 
+        name='단순다수제 (큐브의 법칙)', marker_color='rgb(26, 118, 255)'
+    ))
+    fig_compare.update_layout(
+        barmode='group', title='동일 득표율 하의 선거제도별 의석 배분 격차',
+        xaxis_title='정당명', yaxis_title='확보 의석수',
+        legend_title='선거제도', margin=dict(t=50, b=0, l=0, r=0)
+    )
+    st.plotly_chart(fig_compare, use_container_width=True)
 
-        df_display = result_df[['정당명', '득표율(%)', '이전 득표율(%)', '최종의석', '이념위치(1-10)']].copy()
-        df_display['반자프 지수'] = df_display['정당명'].map(banzhaf_dict).fillna(0.0)
-        df_display['샤플리-슈빅'] = df_display['정당명'].map(shapley_dict).fillna(0.0)
-        
-        df_display['득표율(%)'] = df_display['득표율(%)'].round(2).astype(str) + '%'
-        df_display['이전 득표율(%)'] = df_display['이전 득표율(%)'].round(2).astype(str) + '%'
-        df_display['최종의석'] = df_display['최종의석'].astype(int)
-        df_display['이념위치(1-10)'] = df_display['이념위치(1-10)'].round(1)
-        df_display['반자프 지수'] = df_display['반자프 지수'].astype(str) + '%'
-        df_display['샤플리-슈빅'] = df_display['샤플리-슈빅'].astype(str) + '%'
+    csv_data = compare_df.to_csv(index=False).encode('utf-8-sig')
+    st.download_button(
+        label="📥 통합 비교 데이터 CSV 다운로드", data=csv_data,
+        file_name="선거제도_종합_비교결과.csv", mime="text/csv"
+    )
 
-        st.dataframe(df_display.sort_values('최종의석', ascending=False), hide_index=True, use_container_width=True)
-        
-    with col2:
-        st.subheader(f"🤝 연립정부 시나리오 (과반: {majority_req}석)")
-        coalitions = simulate_coalitions(result_df, actual_total_seats, shapley_dict)
-        
-        if coalitions:
-            for i, res in enumerate(coalitions[:5], 1):
-                with st.expander(f"[{i}순위] {', '.join(res['coalition'])}", expanded=(i==1)):
-                    st.write(f"- **합계 의석:** {res['total_seats']}석")
-                    st.write(f"- **이념적 거리:** {res['ideological_spread']}")
-                    st.write(f"- **내각 평균 이념 좌표:** {res['weighted_ideology']} (1: 좌파 ~ 10: 우파)")
-                    st.write(f"- **연정 주도당(Formateur):** 👑 **{res['formateur']}**")
-                    gamson_str = " / ".join([f"{p} {share}%" for p, share in res['gamson'].items()])
-                    st.write(f"- **내각 지분(갬슨):** {gamson_str}")
-                    st.progress(min(res['total_seats'] / actual_total_seats, 1.0))
-        else:
-            st.error("과반수를 확보할 수 있는 연합 조합이 없습니다.")
+# ==========================================
+# --- 9. 분기 2: 단일 선거제도 모드 ---
+# ==========================================
 else:
-    st.warning("의석 산출 조건에 맞는 데이터가 없습니다.")
+    if election_system == "단순 비례대표제":
+        result_df = calc_pure_pr(cleaned_edit, total_seats, electoral_threshold, pr_method, premium_percent)
+    elif election_system == "병립형 비례대표제 (혼합형)":
+        result_df = calc_parallel(cleaned_edit, pr_seats, electoral_threshold, pr_method)
+    elif election_system == "연동형 비례대표제 (MMP)":
+        result_df = calc_mmp(cleaned_edit, total_seats, electoral_threshold, pr_method, allow_overhang)
+    elif election_system == "단기이양식 선호투표제 (STV 간이모델)":
+        result_df = calc_stv_proxy(cleaned_edit, total_seats)
+    elif election_system == "결선투표제 (간이모델)":
+        result_df = calc_two_round_proxy(cleaned_edit, total_seats, pr_method, premium_percent)
+    elif election_system == "단순다수제 (소선거구제 - 큐브의 법칙 적용)":
+        result_df = calc_fptp_cube_rule(cleaned_edit, total_seats)
+
+    if not result_df.empty and '최종의석' in result_df.columns:
+        actual_total_seats = int(result_df['최종의석'].sum())
+        majority_req = (actual_total_seats // 2) + 1
+        
+        gallagher_val = calculate_gallagher_index(result_df, actual_total_seats)
+        enp_val = calculate_enp(result_df, actual_total_seats)
+        total_vol, vol_a, vol_b = calculate_powell_tucker_volatility(cleaned_edit)
+        
+        banzhaf_dict = calculate_banzhaf_index(result_df, actual_total_seats)
+        shapley_dict = calculate_shapley_shubik_index(result_df, actual_total_seats)
+        
+        col1, col2 = st.columns([1.2, 1])
+        with col1:
+            metric_col1, metric_col2, metric_col3 = st.columns(3)
+            with metric_col1:
+                st.metric(label="⚖️ 갤러거 인덱스", value=f"{gallagher_val}")
+            with metric_col2:
+                st.metric(label="🧩 유효 정당 수 (ENP)", value=f"{enp_val}")
+            with metric_col3:
+                st.metric(label="📈 총 투표 변동성", value=f"{total_vol}", help=f"파웰-터커 지수 (Type A: {vol_a} / Type B: {vol_b})")
+                
+            st.divider()
+            st.subheader("🏛️ 의회 다이어그램")
+            if actual_total_seats > total_seats:
+                st.warning(f"초과의석 발생! 원래 정원({total_seats}석)에서 {actual_total_seats - total_seats}석 증가.")
+            elif actual_total_seats < total_seats and election_system == "연동형 비례대표제 (MMP)" and not allow_overhang:
+                st.info(f"초과의석 방지 작동: 목표 총 의석({total_seats}석)에 맞추어 비례의석이 축소 배분되었습니다.")
+                
+            fig_parliament = draw_parliament_chart(result_df)
+            st.plotly_chart(fig_parliament, use_container_width=True)
+
+            df_display = result_df[['정당명', '득표율(%)', '이전 득표율(%)', '최종의석', '이념위치(1-10)']].copy()
+            df_display['반자프 지수'] = df_display['정당명'].map(banzhaf_dict).fillna(0.0)
+            df_display['샤플리-슈빅'] = df_display['정당명'].map(shapley_dict).fillna(0.0)
+            
+            df_display['득표율(%)'] = df_display['득표율(%)'].round(2).astype(str) + '%'
+            df_display['이전 득표율(%)'] = df_display['이전 득표율(%)'].round(2).astype(str) + '%'
+            df_display['최종의석'] = df_display['최종의석'].astype(int)
+            df_display['이념위치(1-10)'] = df_display['이념위치(1-10)'].round(1)
+            df_display['반자프 지수'] = df_display['반자프 지수'].astype(str) + '%'
+            df_display['샤플리-슈빅'] = df_display['샤플리-슈빅'].astype(str) + '%'
+
+            st.dataframe(df_display.sort_values('최종의석', ascending=False), hide_index=True, use_container_width=True)
+            
+        with col2:
+            st.subheader(f"🤝 연립정부 시나리오 (과반: {majority_req}석)")
+            coalitions = simulate_coalitions(result_df, actual_total_seats, shapley_dict)
+            
+            if coalitions:
+                for i, res in enumerate(coalitions[:5], 1):
+                    with st.expander(f"[{i}순위] {', '.join(res['coalition'])}", expanded=(i==1)):
+                        st.write(f"- **합계 의석:** {res['total_seats']}석")
+                        st.write(f"- **이념적 거리:** {res['ideological_spread']}")
+                        st.write(f"- **내각 평균 이념 좌표:** {res['weighted_ideology']} (1: 좌파 ~ 10: 우파)")
+                        st.write(f"- **연정 주도당(Formateur):** 👑 **{res['formateur']}**")
+                        gamson_str = " / ".join([f"{p} {share}%" for p, share in res['gamson'].items()])
+                        st.write(f"- **내각 지분(갬슨):** {gamson_str}")
+                        st.progress(min(res['total_seats'] / actual_total_seats, 1.0))
+            else:
+                st.error("과반수를 확보할 수 있는 연합 조합이 없습니다.")
+    else:
+        st.warning("의석 산출 조건에 맞는 데이터가 없습니다.")
