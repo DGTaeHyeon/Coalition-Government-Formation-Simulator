@@ -409,7 +409,7 @@ cleaned_edit = clean_input_df(edited_df)
 st.divider()
 result_df = pd.DataFrame()
 
---- 비교 모드 분기 ---
+# --- 비교 모드 분기 ---
 if election_system == "제도 비교 모드 (PR vs 단순다수제)":
 st.subheader("⚖️ 선거제도별 의석 확보 비교")
 
@@ -465,7 +465,7 @@ st.download_button(
     label="📥 통합 비교 데이터 CSV 다운로드", data=csv_data,
     file_name="선거제도_종합_비교결과.csv", mime="text/csv"
 )
---- 단일 선거제도 분기 ---
+# --- 단일 선거제도 분기 ---
 else:
 if election_system == "단순 비례대표제":
 result_df = calc_pure_pr(cleaned_edit, total_seats, electoral_threshold, pr_method, premium_percent)
