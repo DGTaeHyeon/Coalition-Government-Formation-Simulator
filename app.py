@@ -411,7 +411,7 @@ result_df = pd.DataFrame()
 
 # --- 비교 모드 분기 ---
 if election_system == "제도 비교 모드 (PR vs 단순다수제)":
-st.subheader("⚖️ 선거제도별 의석 확보 비교")
+    st.subheader("⚖️ 선거제도별 의석 확보 비교")
 
 df_pr = calc_pure_pr(cleaned_edit, total_seats, electoral_threshold, pr_method, premium_percent)
 df_cube = calc_fptp_cube_rule(cleaned_edit, total_seats)
