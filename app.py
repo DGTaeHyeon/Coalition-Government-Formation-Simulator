@@ -345,7 +345,7 @@ try: fig.data[0].textfont.color = ['white'] * len(df_sorted) + ['rgba(0,0,0,0)']
 except: pass
 return fig
 
---- 7. Streamlit UI 렌더링 ---
+# --- 7. Streamlit UI 렌더링 ---
 st.set_page_config(page_title="고급 선거 및 연정 시뮬레이터", layout="wide")
 st.title("🏛️ 정치학 선거제도 및 연립정부 시뮬레이터 V2.1.0")
 
