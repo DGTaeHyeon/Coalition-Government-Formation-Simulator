@@ -353,8 +353,8 @@ def run_election(system_name, df, total_seats, dist_seats, pr_seats, threshold, 
 # --- 7. Streamlit UI 렌더링 (화면 구성부) ---
 # ==========================================
 
-st.set_page_config(page_title="고급 선거 및 연정 시뮬레이터", layout="wide")
-st.title("🏛️ 정치학 선거제도 및 연립정부 시뮬레이터 V2.2.1")
+st.set_page_config(page_title="의회 및 연정 구성 시뮬레이터", layout="wide")
+st.title("🏛️ 의회 및 연정 구성 시뮬레이터 V2.2.1")
 
 if 'party_data' not in st.session_state:
     st.session_state.party_data = pd.DataFrame([
