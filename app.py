@@ -354,7 +354,7 @@ def run_election(system_name, df, total_seats, dist_seats, pr_seats, threshold, 
 # ==========================================
 
 st.set_page_config(page_title="의회 및 연정 구성 시뮬레이터", layout="wide")
-st.title("🏛️ 의회 및 연정 구성 시뮬레이터 V2.2.1")
+st.title("🏛️ 의회 및 연정 구성 시뮬레이터")
 
 if 'party_data' not in st.session_state:
     st.session_state.party_data = pd.DataFrame([
