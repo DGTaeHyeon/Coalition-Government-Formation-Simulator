@@ -58,7 +58,10 @@ https://dgtaehyeon.github.io/Coalition-Government-Formation-Simulator/ 에서 �
   - 소선거구제 모델에서'득표율'과 '이전 득표율'은 갤러거 인덱스(불비례성)와 선거 변동성을 계산하는 데에만 사용하도록 개선 - 소선거구제의 실제 왜곡 현상을 정확하게 수치화
   - 더미 데이터가 필요했던 기존 파이 차트 형태 의회 다이어그램 폐기
   - 대체 의회 다이어그램으로 수학적 좌표 기반의 점(Dot) 그래프 채택
-  사이드바에서 의회 다이어그램 스타일 선택 가능하도록 조정: 유럽 대륙식 반원형 아치(Arch) 스타일과 영국식 웨스트민스터 사각형(Westminster) 스타일 2종
+  - 사이드바에서 의회 다이어그램 스타일 선택 가능하도록 조정: 유럽 대륙식 반원형 아치(Arch) 스타일과 영국식 웨스트민스터 사각형(Westminster) 스타일 2종
+
+* 버전 2.3.1 (ROK 108(2026). 09. 28)
+  - index.html 대대적 업데이트로 반응형 웹 및 모바일 환경 확대 기능 오픈
 
  ## 참고문헌 -
   - Banzhaf III, J. F. (1965). "Weighted voting doesn't work: A mathematical analysis." Rutgers Law Review, 19, 317-343.
