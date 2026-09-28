@@ -52,6 +52,14 @@ https://dgtaehyeon.github.io/Coalition-Government-Formation-Simulator/ 에서 �
   - 결선투표제 간이모델 알고리즘을 2024년 프랑스 조기 선거 결과에서 나온 요소들(3파전(Triangulaire) 반영, 전략적 후보 사퇴(공화국 전선) 토글 체크박스 추가 등)을 이용해 조정하면서 최종 2차 득표율을 세제곱의 법칙을 이용해 간이모델을 구현하도록 조정
   - '큐브의 법칙'이라 잘못 쓰던 것을 '세제곱의 법칙'으로 정정
 
+* 버전 2.3.0 (ROK 108(2026). 09. 28)
+  - 결선투표제 간이모델 알고리즘 추가 개선 - 기존의 단순 세제곱 공식 기반 간이모델 폐기 및 1차 투표 1~3위 중 가장 극단적인 이념을 가진 정당을 고립시키고, 온건 성향의 정당들이 3위 사퇴를 통해 표를 합치는 '전략적 사퇴(공화국 전선)'를 수리적으로 모델링
+  - 세제곱의 법칙에 대한 연산을 빼고, 사용자가 입력한 '지역구의석' 자체를 최종 의석으로 직결하도록 소선거구제 모델 개선
+  - 소선거구제 모델에서'득표율'과 '이전 득표율'은 갤러거 인덱스(불비례성)와 선거 변동성을 계산하는 데에만 사용하도록 개선 - 소선거구제의 실제 왜곡 현상을 정확하게 수치화
+  - 더미 데이터가 필요했던 기존 파이 차트 형태 의회 다이어그램 폐기
+  - 대체 의회 다이어그램으로 수학적 좌표 기반의 점(Dot) 그래프 채택
+  사이드바에서 의회 다이어그램 스타일 선택 가능하도록 조정: 유럽 대륙식 반원형 아치(Arch) 스타일과 영국식 웨스트민스터 사각형(Westminster) 스타일 2종
+
  ## 참고문헌 -
   - Banzhaf III, J. F. (1965). "Weighted voting doesn't work: A mathematical analysis." Rutgers Law Review, 19, 317-343.
   - Budge, I., Robertson, D., & Hearl, D. (1987). Ideology, Strategy and Party Change: Spatial Analyses of Post-War Election Programmes in 19 Democracies. Cambridge University Press.
