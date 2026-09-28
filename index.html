@@ -1,14 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
+    <!-- 모바일 반응형 및 화면 확대(Zoom) 지원을 위한 뷰포트 설정 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
     <title>의회 및 연정 구성 시뮬레이터</title>
     <!-- 엔진 최신 버전 및 폰트 깨짐 방지 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/mountable@latest/build/stlite.css" />
+    <style>
+      /* 브라우저 기본 여백 제거 및 화면 꽉 채우기 */
+      body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
   </head>
   <body>
-    <!-- 높이를 100vh로 강제하여 흰 화면 버그 방지 -->
-    <div id="root" style="height: 100vh;"></div>
+    <!-- 높이와 너비를 100%로 강제하여 흰 화면 버그 방지 및 반응형 대응 -->
+    <div id="root" style="height: 100vh; width: 100vw;"></div>
     
     <script src="https://cdn.jsdelivr.net/npm/@stlite/mountable@latest/build/stlite.js"></script>
     <script>
